@@ -1,0 +1,41 @@
+# Copyright 2020 Hewlett Packard Enterprise Development LP
+
+# Dockerfile for building HMS TRS Kafka Library test app
+# Author: mpkelly
+# Date: 08-January 2020
+
+# Build base has the packages installed that we need.
+FROM dtr.dev.cray.com/baseos/golang:1.14-alpine3.12 AS build-base
+
+RUN set -ex \
+    && apk update \
+    && apk add build-base git
+
+FROM build-base AS base
+
+# Copy all the necessary files to the image.
+COPY Test $GOPATH/src/stash.us.cray.com/HMS/hms-trs-kafkalib/Test
+COPY pkg $GOPATH/src/stash.us.cray.com/HMS/hms-trs-kafkalib/pkg
+COPY vendor $GOPATH/src/stash.us.cray.com/HMS/hms-trs-kafkalib/vendor
+
+### Build Stage ###
+
+FROM base AS builder
+
+# Now build.
+RUN set -ex \
+    && go build -v -i -o testApp stash.us.cray.com/HMS/hms-trs-kafkalib/Test
+
+### Final Stage ###
+
+FROM dtr.dev.cray.com/baseos/alpine:3.12
+LABEL maintainer="Cray, Inc."
+STOPSIGNAL SIGTERM
+
+ENV PORT=27999
+
+# Copy the final binary.
+COPY --from=builder /go/testApp /usr/local/bin
+
+# Run the test app. Env vars are retrieved from the docker-compose file.
+CMD ["sh", "-c", "testApp"]

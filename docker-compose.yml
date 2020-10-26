@@ -1,0 +1,49 @@
+version: '3'
+services:
+  zookeeper:
+    image: dtr.dev.cray.com/confluentinc/cp-zookeeper:5.4.0
+    hostname: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+  kafka:
+    image: dtr.dev.cray.com/confluentinc/cp-kafka:5.4.0
+    ports:
+      - "29092"
+    hostname: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ADVERTISE_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENERS: LISTENER_INSIDE://kafka:29092,LISTENER_OUTSIDE://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_INSIDE://kafka:29092,LISTENER_OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_INSIDE:PLAINTEXT,LISTENER_OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_INSIDE
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+  sender:
+    build:
+      context: ./
+      dockerfile: Dockerfile.Test
+    hostname: sender
+    environment:
+      - BROKER=kafka:29092
+      - NUMMSGS=100
+    depends_on:
+      - kafka
+
+  receiver:
+    build:
+      context: ./
+      dockerfile: Dockerfile.Test
+    hostname: receiver
+    environment:
+      - BROKER=kafka:29092
+      - KTYPE=rcv
+      - USE_QUIT=1
+    depends_on:
+      - kafka
+
