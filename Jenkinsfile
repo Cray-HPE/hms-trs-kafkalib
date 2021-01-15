@@ -1,6 +1,7 @@
 @Library('dst-shared@master') _
 
 dockerBuildPipeline {
+        githubPushRepo = "Cray-HPE/hms-trs-kafkalib"
         repository = "cray"
         imagePrefix = "hms"
         app = "trs-kafkalib"
