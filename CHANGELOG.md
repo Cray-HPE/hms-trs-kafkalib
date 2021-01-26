@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.3.1] - 2021-01-26
+
+### Changed
+
+- Updated license in all source code.
+- Corrected string creation error in library.go
+
 ## [1.3.0] - 2021-01-14
 
 ### Changed
@@ -41,11 +48,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.3] - 2020-02-06
 
-- Changed contract Kafka Init. 
+- Changed contract Kafka Init.
 
 ## [1.0.2] - 2020-02-06
 
-- Changed contract of library so topics can come and go as needed. 
+- Changed contract of library so topics can come and go as needed.
 
 ## [1.0.1] - 2020-01-13
 
@@ -64,4 +71,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Security
-
