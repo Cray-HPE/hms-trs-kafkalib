@@ -12,7 +12,7 @@ pipeline {
 
     environment {
         NAME = "hms-trs-kafkalib"
-        DESCRIPTION = "Cray Kafka bus library"
+        DESCRIPTION = "Cray HMS TRS Kafka library package."
         IS_STABLE = getBuildIsStable()
         VERSION = getDockerBuildVersion(isStable: env.IS_STABLE)
         DOCKER_ARGS = getDockerBuildArgs(name: env.NAME, description: env.DESCRIPTION)
