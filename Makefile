@@ -21,11 +21,9 @@
 NAME ?= hms-trs-kafkalib
 VERSION ?= $(shell cat .version)
 
-all: image unittest
-
-image:
-	docker build --pull ${DOCKER_ARGS} --tag '${NAME}:${VERSION}' .
+all: unittest
 
 unittest:
+	docker build --pull ${DOCKER_ARGS} --tag '${NAME}:${VERSION}' .
 	./runUnitTest.sh
 

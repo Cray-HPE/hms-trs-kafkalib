@@ -19,23 +19,10 @@ pipeline {
     }
 
     stages {
-        stage("Image") {
-            steps {
-                sh "make image"
-            }
-        }
 
         stage("Run Unit Tests") {
             steps {
                 sh "make unittest"
-            }
-        }
-
-        stage("Publish") {
-            steps {
-                script {
-                    publishCsmDockerImage(image: env.NAME, tag: env.VERSION, isStable: env.IS_STABLE)
-                }
             }
         }
     }
