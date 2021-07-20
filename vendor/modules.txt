@@ -1,4 +1,5 @@
 # github.com/Shopify/sarama v1.24.1
+## explicit
 github.com/Shopify/sarama
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
@@ -21,6 +22,8 @@ github.com/klauspost/compress/huff0
 github.com/klauspost/compress/snappy
 github.com/klauspost/compress/zstd
 github.com/klauspost/compress/zstd/internal/xxhash
+# github.com/klauspost/cpuid v1.2.2
+## explicit
 # github.com/konsorten/go-windows-terminal-sequences v1.0.1
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/pierrec/lz4 v2.2.6+incompatible
@@ -29,6 +32,7 @@ github.com/pierrec/lz4/internal/xxh32
 # github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a
 github.com/rcrowley/go-metrics
 # github.com/sirupsen/logrus v1.5.0
+## explicit
 github.com/sirupsen/logrus
 # golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
 golang.org/x/crypto/md4
