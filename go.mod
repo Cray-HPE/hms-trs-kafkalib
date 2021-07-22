@@ -1,4 +1,4 @@
-module stash.us.cray.com/HMS/hms-trs-kafkalib
+module github.com/Cray-HPE/hms-trs-kafkalib
 
 go 1.16
 

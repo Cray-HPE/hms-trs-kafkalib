@@ -30,9 +30,9 @@ import (
 	"strings"
 	"time"
 
+	tkafka "github.com/Cray-HPE/hms-trs-kafkalib/pkg/trs-kafkalib"
 	"github.com/Shopify/sarama"
 	"github.com/sirupsen/logrus"
-	tkafka "stash.us.cray.com/HMS/hms-trs-kafkalib/pkg/trs-kafkalib"
 )
 
 func main() {
