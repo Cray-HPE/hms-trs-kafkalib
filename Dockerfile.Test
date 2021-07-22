@@ -36,9 +36,9 @@ FROM build-base AS base
 
 RUN go env -w GO111MODULE=auto
 
-COPY Test $GOPATH/src/stash.us.cray.com/HMS/hms-trs-kafkalib/Test
-COPY pkg $GOPATH/src/stash.us.cray.com/HMS/hms-trs-kafkalib/pkg
-COPY vendor $GOPATH/src/stash.us.cray.com/HMS/hms-trs-kafkalib/vendor
+COPY Test $GOPATH/src/github.com/Cray-HPE/hms-trs-kafkalib/Test
+COPY pkg $GOPATH/src/github.com/Cray-HPE/hms-trs-kafkalib/pkg
+COPY vendor $GOPATH/src/github.com/Cray-HPE/hms-trs-kafkalib/vendor
 
 ### Build Stage ###
 
@@ -46,7 +46,7 @@ FROM base AS builder
 
 # Now build.
 RUN set -ex \
-    && go build -v -i -o testApp stash.us.cray.com/HMS/hms-trs-kafkalib/Test
+    && go build -v -i -o testApp github.com/Cray-HPE/hms-trs-kafkalib/Test
 
 ### Final Stage ###
 
