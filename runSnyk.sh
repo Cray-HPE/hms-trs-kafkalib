@@ -21,7 +21,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 set -ex
-SNYK_OPTS="--dev --show-vulnerable-paths=all --fail-on=all --severity-threshold=${SEVERITY:-high} --skip-unresolved=true -d --json"
+SNYK_OPTS="--dev --show-vulnerable-paths=all --fail-on=all --severity-threshold=${SEVERITY:-high} --skip-unresolved=true  --json"
 
 OUT=$(set -x; snyk test --all-projects --detection-depth=999 $SNYK_OPTS)
 
