@@ -2,7 +2,7 @@
 
 # MIT License
 #
-# (C) Copyright [2021] Hewlett Packard Enterprise Development LP
+# (C) Copyright [2021-2022] Hewlett Packard Enterprise Development LP
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -101,22 +101,22 @@ echo "Skip Cleanup: $NO_CLEAN"
 
 
 function cleanup {
-  if [[ ${NO_CLEAN} == false ]]; then
-    ${docker_compose_exe} down
-    if ! [[ $? -eq 0 ]]; then
-        echo "Failed to decompose environment!"
-        exit 1
-    fi
-
-    if [[ ${KEEP_REPO_DIR} == false ]]; then
-        echo "Cleaning up temporary repo dir..."
-        rm -rf ${REPO_DIR}
+    if [[ ${NO_CLEAN} == false ]]; then
+        ${docker_compose_exe} down
         if ! [[ $? -eq 0 ]]; then
-            echo "Failed to remove repo dir!"
+            echo "Failed to decompose environment!"
             exit 1
         fi
+
+        if [[ ${KEEP_REPO_DIR} == false ]]; then
+            echo "Cleaning up temporary repo dir..."
+            rm -rf ${REPO_DIR}
+            if ! [[ $? -eq 0 ]]; then
+                echo "Failed to remove repo dir!"
+                exit 1
+            fi
+        fi
     fi
-  fi
 
     exit $1
 }
@@ -177,7 +177,7 @@ cd $CURWD
 # Step 3) Get the base containers running
 echo "Starting containers..."
 ${docker_compose_exe} pull \
-    && ${docker_compose_exe} build --parallel \
+    && ${docker_compose_exe} build \
     && ${docker_compose_exe} up -d zookeeper kafka \
     && ${docker_compose_exe} up -d sender
 if [[ $? -ne 0 ]]; then
