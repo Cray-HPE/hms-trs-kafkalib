@@ -35,11 +35,11 @@ FROM build-base AS base
 
 RUN go env -w GO111MODULE=auto
 
-COPY pkg $GOPATH/src/github.com/Cray-HPE/hms-trs-kafkalib/pkg
+COPY pkg $GOPATH/src/github.com/Cray-HPE/hms-trs-kafkalib/v2/pkg
 COPY vendor $GOPATH/src/github.com/Cray-HPE/hms-trs-kafkalib/vendor
 
 # Now we can build.
 FROM base
 
 RUN set -ex \
-    && go build -v -tags musl github.com/Cray-HPE/hms-trs-kafkalib/pkg/./...
+    && go build -v -tags musl github.com/Cray-HPE/hms-trs-kafkalib/v2/pkg/./...

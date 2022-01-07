@@ -30,7 +30,7 @@ import (
 	"strings"
 	"time"
 
-	tkafka "github.com/Cray-HPE/hms-trs-kafkalib/pkg/trs-kafkalib"
+	tkafka "github.com/Cray-HPE/hms-trs-kafkalib/v2/pkg/trs-kafkalib"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/sirupsen/logrus"
 )
