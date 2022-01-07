@@ -31,14 +31,9 @@ import (
 	"time"
 
 	tkafka "github.com/Cray-HPE/hms-trs-kafkalib/pkg/trs-kafkalib"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/Shopify/sarama"
 	"github.com/sirupsen/logrus"
 )
-
-const (
-	SYNC_TOKEN = "STARTSYNC"
-)
-
 
 func main() {
 
@@ -47,7 +42,7 @@ func main() {
 	brokerSpec := "kafka:9092"
 	ctx, _ := context.WithCancel(context.Background())
 	kinst := &tkafka.TRSKafka{}
-	rspChan := make(chan *kafka.Message)
+	rspChan := make(chan *sarama.ConsumerMessage)
 	useQuit := false
 
 	//SETUP LOGGER
@@ -76,7 +71,7 @@ func main() {
 	envstr = os.Getenv("LOG_LEVEL")
 	if envstr != "" {
 		logLevel := strings.ToUpper(envstr)
-		logrus.Infof("Setting log level to: %s", envstr)
+		logrus.Infof("Setting log level to: %d\n", envstr)
 
 		switch logLevel {
 
@@ -102,19 +97,15 @@ func main() {
 		logy.SetLevel(logrus.GetLevel())
 	}
 
-	//Note: this doesn't seem to be necessary but does make the
-	//runs cleaner.
-	logrus.Infof("Giving kafka time to warm up...")
-	time.Sleep(10 * time.Second)
-
 	envstr = os.Getenv("BROKER")
 	if envstr != "" {
 		brokerSpec = envstr
 	}
 
 	if ksender {
-		logrus.Infof("** FUNCTION: SENDER **")
+		logrus.Infof("** FUNCTION: SENDER **\n")
 
+		//st,rt,cg := tkafka.GenerateSendReceiveConsumerGroupName("KTestApp","REST","")
 		st := "test"
 		rt := []string{"test"}
 		cg := ""
@@ -125,81 +116,46 @@ func main() {
 			os.Exit(1)
 		}
 
-		// Echo back what the receiver has ricocheted back to us.
-		//
-		// We'll send a special token to the receiver over and over
-		// which the receiver will eventually echo back.  Once we
-		// receive it, set a flag so we know kafka is operational.
-
-		syncup := false
+		time.Sleep(2 * time.Second)
 
 		go func() {
 			for {
 				pld := <-rspChan
-				if (strings.Contains(string(pld.Value),SYNC_TOKEN)) {
-					logrus.Infof("Start/Syncp message received.")
-					syncup = true
-					continue
-				}
-				logrus.Infof("RECEIVED: '%s'", string(pld.Value))
+				logrus.Infof("RECEIVED: '%s'\n", string(pld.Value))
 			}
 		}()
 
 		//Send messages
 
-		time.Sleep(2 * time.Second)
-		logrus.Infof("Send topics: '%s'", kinst.RcvTopicNames)
+		time.Sleep(1 * time.Second)
+		logrus.Infof("Rcv topics: '%s'\n", kinst.RcvTopicNames)
 
 		numMsgs := 5
 		envstr := os.Getenv("NUMMSGS")
 		if envstr != "" {
 			numMsgs, _ = strconv.Atoi(envstr)
 		}
-
-		logrus.Infof("Waiting for channels and components to be ready...")
-
-		for ii := 0; ii < 60 ; ii ++ {
-			//Send a startup token which will get echo'd back to verify
-			//everyone is ready to play.
-			kinst.Write(st, []byte(SYNC_TOKEN))
-			if (syncup == true) {
-				break
-			}
-			time.Sleep(time.Second)
-		}
-
-		if (!syncup) {
-			logrus.Errorf("ERROR: never got start/sync message, exiting.")
-			os.Exit(1)
-		}
-
-		logrus.Infof("Sending %d messages...", numMsgs)
+		logrus.Infof("Sending %d messages...\n", numMsgs)
 
 		for ii := 0; ii < numMsgs; ii++ {
 			pld := fmt.Sprintf("Test message iteration %d", ii)
-			logrus.Infof("Sending message # %d", ii)
+			logrus.Infof("Sending message # %d\n", ii)
 			kinst.Write(st, []byte(pld))
-			time.Sleep(10 * time.Millisecond)
-			if (ii == (numMsgs / 3)) {
-				//Minor test of topic changing on the fly
-				err := kinst.SetTopics([]string{"test","newtest"})
-				if (err != nil) {
-					logrus.Errorf("Error setting new topics: %v",err)
-				}
-			}
+			time.Sleep(100 * time.Millisecond)
 		}
-		logrus.Infof("Sending quit message...")
+		logrus.Infof("Sending quit message...\n")
 		kinst.Write(st, []byte("quit"))
 		time.Sleep(1 * time.Second)
-		logrus.Infof("Closing channel...")
+		logrus.Infof("Closing channel...\n")
 		kinst.Shutdown()
-		time.Sleep(10 * time.Second)
+		time.Sleep(2 * time.Second)
 
-		logrus.Infof("All done...")
+		logrus.Infof("All done...\n")
 		os.Exit(0)
 	} else {
-		logrus.Infof("** FUNCTION: ECHO **")
+		logrus.Infof("** FUNCTION: ECHO **\n\n")
 
+		//st,rt,cg := tkafka.GenerateSendReceiveConsumerGroupName("KTestApp","REST","")
 		st := "test"
 		rt := []string{"test"}
 		cg := ""
@@ -210,48 +166,25 @@ func main() {
 		}
 
 		kinst.Client.Consumer.Logger.SetLevel(logrus.ErrorLevel)
-		logrus.Infof("Rcv topics: '%s'", kinst.RcvTopicNames)
-		time.Sleep(2 * time.Second)
-		msgIX := 0
-
+		logrus.Infof("Rcv topics: '%s'\n", kinst.RcvTopicNames)
 		for {
 			pld := <-kinst.Client.Consumer.Responses
-			msgIX ++
-			if (msgIX == 10) {
-				//Minor test of topic changing on the fly
-				err := kinst.SetTopics([]string{"test","newtest"})
-				if (err != nil) {
-					logrus.Errorf("Error setting new topics: %v",err)
-				}
-			}
-
 			if string(pld.Value) == "quit" {
 				if useQuit {
-					logrus.Infof("Received: '%s' -- exiting.",
-						string(pld.Value))
+					logrus.Infof("Received: '%s' -- exiting.\n", string(pld.Value))
 					break
 				} else {
-					logrus.Infof("Received: '%s' -- continuing.",
-						string(pld.Value))
+					logrus.Infof("Received: '%s' -- continuing.\n", string(pld.Value))
 				}
 			} else {
-				//Only echo back once.
-
-				if (!strings.Contains(string(pld.Value),"Echo:") &&
-					!strings.Contains(string(pld.Value),SYNC_TOKEN)) {
-					logrus.Infof("Received: '%s' -- echoing back.",
-							string(pld.Value))
-					eval := "Echo: " + string(pld.Value)
-					kinst.Write(st, []byte(eval))
-				} else {
-					logrus.Infof("Received: '%s' .", string(pld.Value))
-				}
+				logrus.Infof("Received: '%s' -- echoing back.\n", string(pld.Value))
+				kinst.Write(st, []byte(pld.Value))
 			}
 		}
 
-		logrus.Infof("Closing channel...")
-		time.Sleep(2 * time.Second)
+		logrus.Infof("Closing channel...\n")
 		kinst.Shutdown()
+		time.Sleep(2 * time.Second)
 		os.Exit(0)
 	}
 }
