@@ -46,7 +46,7 @@ FROM base AS builder
 
 # Now build.
 RUN set -ex \
-    && go build -v -i -tags musl -o testApp github.com/Cray-HPE/hms-trs-kafkalib/Test
+    && go build -v -tags musl -o testApp github.com/Cray-HPE/hms-trs-kafkalib/Test
 
 ### Final Stage ###
 
